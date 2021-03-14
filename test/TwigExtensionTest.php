@@ -36,7 +36,8 @@ class TwigExtensionTest extends TestCase
         $this->urlHelper       = $this->createMock(UrlHelper::class);
     }
 
-    public function createExtension($assetsUrl, $assetsVersion): TwigExtension
+    /** @param null|string|int $assetsVersion */
+    public function createExtension(string $assetsUrl, $assetsVersion): TwigExtension
     {
         return new TwigExtension(
             $this->serverUrlHelper,
@@ -47,7 +48,7 @@ class TwigExtensionTest extends TestCase
     }
 
     /** @return object|bool */
-    public function findFunction($name, array $functions)
+    public function findFunction(string $name, array $functions)
     {
         foreach ($functions as $function) {
             $this->assertInstanceOf(TwigFunction::class, $function);
@@ -59,14 +60,14 @@ class TwigExtensionTest extends TestCase
         return false;
     }
 
-    public function assertFunctionExists($name, array $functions, $message = null)
+    public function assertFunctionExists(string $name, array $functions, ?string $message = null): void
     {
         $message  = $message ?: sprintf('Failed to identify function by name %s', $name);
         $function = $this->findFunction($name, $functions);
         $this->assertInstanceOf(TwigFunction::class, $function, $message);
     }
 
-    public function testRegistersTwigFunctions()
+    public function testRegistersTwigFunctions(): void
     {
         $extension = $this->createExtension('', '');
         $functions = $extension->getFunctions();
@@ -76,7 +77,7 @@ class TwigExtensionTest extends TestCase
         $this->assertFunctionExists('asset', $functions);
     }
 
-    public function testMapsTwigFunctionsToExpectedMethods()
+    public function testMapsTwigFunctionsToExpectedMethods(): void
     {
         $extension = $this->createExtension('', '');
         $functions = $extension->getFunctions();
@@ -102,7 +103,7 @@ class TwigExtensionTest extends TestCase
         );
     }
 
-    public function testRenderUriDelegatesToComposedUrlHelper()
+    public function testRenderUriDelegatesToComposedUrlHelper(): void
     {
         $this->urlHelper
             ->method('generate')
@@ -112,7 +113,7 @@ class TwigExtensionTest extends TestCase
         $this->assertSame('URL', $extension->renderUri('foo', ['id' => 1]));
     }
 
-    public function testRenderUrlDelegatesToComposedUrlHelperAndServerUrlHelper()
+    public function testRenderUrlDelegatesToComposedUrlHelperAndServerUrlHelper(): void
     {
         $this->urlHelper
             ->method('generate')
@@ -126,7 +127,7 @@ class TwigExtensionTest extends TestCase
         $this->assertSame('HOST/PATH', $extension->renderUrl('foo', ['id' => 1]));
     }
 
-    public function testRenderUrlFromPathDelegatesToComposedServerUrlHelper()
+    public function testRenderUrlFromPathDelegatesToComposedServerUrlHelper(): void
     {
         $this->serverUrlHelper
             ->method('generate')
@@ -136,13 +137,13 @@ class TwigExtensionTest extends TestCase
         $this->assertSame('HOST/PATH', $extension->renderUrlFromPath('PATH'));
     }
 
-    public function testRenderAssetUrlUsesComposedAssetUrlAndVersionToGenerateUrl()
+    public function testRenderAssetUrlUsesComposedAssetUrlAndVersionToGenerateUrl(): void
     {
         $extension = $this->createExtension('https://images.example.com/', 'XYZ');
         $this->assertSame('https://images.example.com/foo.png?v=XYZ', $extension->renderAssetUrl('foo.png'));
     }
 
-    public function testRenderAssetUrlUsesProvidedVersionToGenerateUrl()
+    public function testRenderAssetUrlUsesProvidedVersionToGenerateUrl(): void
     {
         $extension = $this->createExtension('https://images.example.com/', 'XYZ');
         $this->assertSame(
@@ -163,7 +164,7 @@ class TwigExtensionTest extends TestCase
      * @dataProvider emptyAssetVersions
      * @param null|string $emptyValue
      */
-    public function testRenderAssetUrlWithoutProvidedVersion($emptyValue)
+    public function testRenderAssetUrlWithoutProvidedVersion($emptyValue): void
     {
         $extension = $this->createExtension('https://images.example.com/', $emptyValue);
         $this->assertSame(
@@ -184,7 +185,7 @@ class TwigExtensionTest extends TestCase
      * @dataProvider zeroAssetVersions
      * @param int|string $zeroValue
      */
-    public function testRendersZeroVersionAssetUrl($zeroValue)
+    public function testRendersZeroVersionAssetUrl($zeroValue): void
     {
         $extension = $this->createExtension('https://images.example.com/', $zeroValue);
         $this->assertSame(

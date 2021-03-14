@@ -13,6 +13,7 @@ namespace MezzioTest\Twig;
 use Mezzio\Helper\ServerUrlHelper;
 use Mezzio\Helper\UrlHelper;
 use Mezzio\Twig\TwigExtension;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
@@ -20,9 +21,13 @@ use Twig\Loader\LoaderInterface;
 
 class TwigExtensionFunctionsRenderTest extends TestCase
 {
+    /** @var string[] */
     protected $templates;
+    /** @var MockObject|LoaderInterface */
     protected $twigLoader;
+    /** @var ServerUrlHelper|MockObject */
     protected $serverUrlHelper;
+    /** @var UrlHelper|MockObject */
     protected $urlHelper;
 
     protected function setUp(): void

@@ -12,8 +12,10 @@ namespace Mezzio\Twig;
 
 use ArrayObject;
 use DateTimeZone;
+use Exception;
 use Mezzio\Helper\ServerUrlHelper;
 use Mezzio\Helper\UrlHelper;
+use Mezzio\Twig\Exception as TwigException;
 use Psr\Container\ContainerInterface;
 use Twig\Environment;
 use Twig\Error\LoaderError;
@@ -86,7 +88,7 @@ class TwigEnvironmentFactory
         $config = $container->has('config') ? $container->get('config') : [];
 
         if (! is_array($config) && ! $config instanceof ArrayObject) {
-            throw new Exception\InvalidConfigException(sprintf(
+            throw new TwigException\InvalidConfigException(sprintf(
                 '"config" service must be an array or ArrayObject for the %s to be able to consume it; received %s',
                 self::class,
                 is_object($config) ? get_class($config) : gettype($config)
@@ -110,12 +112,12 @@ class TwigEnvironmentFactory
         if (isset($config['timezone'])) {
             $timezone = $config['timezone'];
             if (! is_string($timezone)) {
-                throw new Exception\InvalidConfigException('"timezone" configuration value must be a string');
+                throw new TwigException\InvalidConfigException('"timezone" configuration value must be a string');
             }
             try {
                 $timezone = new DateTimeZone($timezone);
-            } catch (\Exception $e) {
-                throw new Exception\InvalidConfigException(sprintf('Unknown or invalid timezone: "%s"', $timezone));
+            } catch (Exception $e) {
+                throw new TwigException\InvalidConfigException(sprintf('Unknown or invalid timezone: "%s"', $timezone));
             }
             $environment->getExtension(CoreExtension::class)->setTimezone($timezone);
         }
@@ -162,6 +164,8 @@ class TwigEnvironmentFactory
 
     /**
      * Inject extensions into the TwigEnvironment instance.
+     *
+     * @param array $extensions
      */
     private function injectExtensions(
         Environment $environment,
@@ -194,7 +198,7 @@ class TwigEnvironmentFactory
         }
 
         if (! $extension instanceof ExtensionInterface) {
-            throw new Exception\InvalidExtensionException(sprintf(
+            throw new TwigException\InvalidExtensionException(sprintf(
                 'Twig extension must be an instance of %s; "%s" given,',
                 ExtensionInterface::class,
                 is_object($extension) ? get_class($extension) : gettype($extension)
@@ -229,7 +233,7 @@ class TwigEnvironmentFactory
         }
 
         if (! $runtimeLoader instanceof RuntimeLoaderInterface) {
-            throw new Exception\InvalidRuntimeLoaderException(sprintf(
+            throw new TwigException\InvalidRuntimeLoaderException(sprintf(
                 'Twig runtime loader must be an instance of %s; "%s" given,',
                 RuntimeLoaderInterface::class,
                 is_object($runtimeLoader) ? get_class($runtimeLoader) : gettype($runtimeLoader)
